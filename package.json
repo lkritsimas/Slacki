@@ -1,0 +1,23 @@
+{
+    "name": "slacki",
+    "version": "1.0.0",
+    "description": "Slack bot",
+    "main": "src/app.js",
+    "dependencies": {
+        "@slack/rtm-api": "^5.0.3"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lkritsimas/Slacki.git"
+    },
+    "author": "Lacki Kritsimas",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/lkritsimas/Slacki/issues"
+    },
+    "homepage": "https://github.com/lkritsimas/Slacki#readme"
+}
