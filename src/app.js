@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { createEventAdapter } = require("@slack/events-api");
 const Loader = require("./loader");
+const Utils = require("./lib/utils");
 
 // Read from environment variables
 const debug = process.env.APP_DEBUG;
@@ -27,6 +28,7 @@ for (const moduleName of _modules) {
             moduleName
         ] = require(`${modulePath}/${moduleName}/${moduleName}.js`);
         modules[moduleName].enabled = true;
+        console.log(`[${moduleName}] module loaded`);
     } catch (ex) {
         if (ex.code !== "MODULE_NOT_FOUND") {
             console.log(ex);
@@ -68,6 +70,9 @@ slackEvents.on("app_mention", event => {
                 console.log(ex);
             }
         }
+        // else {
+        //     Utils.slack.postMessage(event.channel, "¯\\_(ツ)_/¯");
+        // }
     }
 
     // Log message to console
