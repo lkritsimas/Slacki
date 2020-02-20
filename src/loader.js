@@ -1,5 +1,8 @@
 const fs = require("fs");
 
+/**
+ * Loads and manages JSON files
+ */
 class Loader {
     constructor(file) {
         if (!fs.existsSync(file))
@@ -9,19 +12,34 @@ class Loader {
         this.refresh();
     }
 
+    /**
+     * Set a key/value pair
+     * @param {string} key
+     * @param {string} value
+     */
     set(key, value) {
         this.data[key] = value;
         this.save();
     }
 
+    /**
+     * Get a specific item by key
+     * @param {string} key
+     */
     get(key) {
         return this.data[key];
     }
 
+    /**
+     * Refresh config data
+     */
     refresh() {
         this.data = JSON.parse(fs.readFileSync(this.file, "utf8"));
     }
 
+    /**
+     * Save config file
+     */
     save() {
         if (!this.file) console.log("Error: Unable to save, no file provided");
 

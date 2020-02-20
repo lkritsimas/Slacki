@@ -1,5 +1,11 @@
 const Utils = require("../../lib/utils");
-
+/**
+ * Module: Cat
+ * Command: cat
+ * Arguments:
+ *  fact                 - Gets a random cat fact
+ *  [img|image|picture]  - Gets a random cat image
+ */
 class Cat {
     constructor(config) {
         this.isCommand = true;
@@ -11,6 +17,7 @@ class Cat {
             ...config
         };
     }
+
     /**
      * Module handler
      * @param {object} event
