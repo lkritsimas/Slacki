@@ -1,11 +1,11 @@
 require("dotenv").config();
-const { RTMClient } = require("@slack/rtm-api");
+const { createEventAdapter } = require("@slack/events-api");
 const Loader = require("./loader");
 
 // Read from environment variables
-const token = process.env.APP_TOKEN;
-const name = process.env.APP_DEBUG;
 const debug = process.env.APP_DEBUG;
+const secret = process.env.APP_SECRET;
+const port = process.env.APP_PORT || 3000;
 
 /**
  * Modules
@@ -13,36 +13,71 @@ const debug = process.env.APP_DEBUG;
 const config = new Loader(`${__dirname}/../config/app.json`);
 const modulePath = `${__dirname}/modules`;
 
-// Get active modules
+// Get enabled modules from config
 const _modules = config.get("modules").enabled || [];
+// Store loaded modules
 let modules = [];
 
 /**
  * Loop through modules from config and enable them
  */
-
-console.log(_modules);
 for (const moduleName of _modules) {
     try {
-        modules[moduleName] = require(`${modulePath}/${moduleName}.js`);
+        modules[
+            moduleName
+        ] = require(`${modulePath}/${moduleName}/${moduleName}.js`);
         modules[moduleName].enabled = true;
-
-        console.log(module);
     } catch (ex) {
-        if (ex.code !== "MODULE_NOT_FOUND") console.log(ex);
-        else {
+        if (ex.code !== "MODULE_NOT_FOUND") {
+            console.log(ex);
+        } else {
             console.log(
-                `Error: Module "${moduleName}.js" was not found in "${modulePath}"`
+                `Error: Module "${moduleName}.js" was not found in "${modulePath}/${moduleName}"`
             );
         }
     }
 }
 
-if (!debug) {
-    // Initialize
-    const rtm = new RTMClient(token);
+// Initialize Slack Event API
+const slackEvents = createEventAdapter(secret);
 
-    (async () => {
-        await rtm.start();
-    })();
-}
+/**
+ * Listen for mentions
+ */
+slackEvents.on("app_mention", event => {
+    // Parse mention
+    const message = event.text.replace(/<@([WU].+?)>\s*/, "");
+    // Get command from message
+    const command = message.split(" ")[0].toLowerCase();
+    // Get command arguments from message
+    const args = message.split(" ").slice(1);
+
+    // Pass on to modules
+    for (const moduleName in modules) {
+        const module = modules[moduleName];
+        const isCommand = module.isCommand || true;
+        if (
+            typeof module.handle === "function" &&
+            command === module.command &&
+            isCommand &&
+            module.enabled === true
+        ) {
+            try {
+                module.handle(event, args);
+            } catch (ex) {
+                console.log(ex);
+            }
+        }
+    }
+
+    // Log message to console
+    console.log(`[${event.channel}]<@${event.user}>: ${message}`);
+});
+
+/**
+ * Run event server
+ */
+(async () => {
+    const server = await slackEvents.start(port);
+    console.log(`Listening for events on port ${server.address().port}`);
+})();
