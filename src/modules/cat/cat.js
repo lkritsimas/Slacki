@@ -1,4 +1,5 @@
 const Utils = require("../../lib/utils");
+
 /**
  * Module: Cat
  * Command: cat
@@ -10,9 +11,13 @@ class Cat {
     constructor(config) {
         this.isCommand = true;
         this.command = "cat";
+        this.title = ":cat: *Cat*";
 
         this.config = {
-            factURL: "https://catfact.ninja/fact",
+            factURLs: [
+                "https://cat-fact.herokuapp.com/facts/random",
+                "https://catfact.ninja/fact"
+            ],
             imageURLs: ["https://cataas.com/cat", "http://aws.random.cat/meow"],
             ...config
         };
@@ -20,17 +25,19 @@ class Cat {
 
     /**
      * Module handler
-     * @param {object} event
-     * @param {array} args
+     * @param {Object} event
+     * @param {Array} args
      */
     handle(event, args) {
         if (!args.length) return false;
         const command = args[0];
 
+        const title = `${this.title} *${command}*`;
+
         switch (command) {
             case "fact":
                 return this.fetchFact().then(data =>
-                    Utils.slack.postMessage(event.channel, data)
+                    Utils.slack.postMessage(event.channel, data, title)
                 );
 
             case "img":
@@ -40,7 +47,8 @@ class Cat {
                     if (!image.data)
                         Utils.slack.postMessage(
                             event.channel,
-                            "An error occured, try again later!"
+                            "An error occured, try again later!",
+                            title
                         );
 
                     // Upload file to Slack channel
@@ -54,7 +62,8 @@ class Cat {
             default:
                 return Utils.slack.postMessage(
                     event.channel,
-                    "How about trying a command that actually exists?"
+                    "How about trying a command that actually exists?",
+                    null
                 );
         }
     }
@@ -78,11 +87,28 @@ class Cat {
      * Get a random cat fact
      */
     async fetchFact() {
-        const response = await Utils.http.axios.get(this.config.factURL);
-        if ((!response.data || !response.data.fact) && response)
+        let fact;
+
+        for (const factURL of this.config.factURLs) {
+            const response = await Utils.http.axios.get(factURL);
+
+            if (
+                (!response.data ||
+                    !response.data.fact ||
+                    !response.data.text) &&
+                response
+            ) {
+                fact = response.data.fact || response.data.text;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        if (!fact)
             return "An error occured when fetching fact, try again later!";
 
-        return response.data.fact;
+        return fact;
     }
 
     /**

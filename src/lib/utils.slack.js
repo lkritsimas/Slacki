@@ -7,15 +7,17 @@ const client = new WebClient(token);
  * Send a simple message to a public channel, private channel, DM, or MPDM.
  * @param {string} channel
  * @param {string} text
- * @param {array} attachments
+ * @param {Array} attachments
  */
-const postMessage = async (channel, text, attachments = null) => {
+const postMessage = async (channel, text, title, args = null) => {
     if (!channel.length || !text.length) return false;
+
+    title = title ? `${title}\n` : "";
 
     return client.chat.postMessage({
         channel: channel,
-        text: text,
-        attachments: attachments
+        text: `${title}${text}`,
+        ...args
     });
 };
 
