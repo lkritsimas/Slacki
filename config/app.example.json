@@ -1,5 +1,5 @@
 {
     "modules": {
-        "enabled": ["cat-fact", "cat-image", "joke"]
+        "enabled": ["cat-fact", "cat-image", "dad-joke"]
     }
 }
