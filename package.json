@@ -7,12 +7,16 @@
         "@slack/events-api": "^2.3.1",
         "@slack/web-api": "^5.7.0",
         "axios": "^0.19.2",
-        "dotenv": "^8.2.0"
+        "dotenv": "^8.2.0",
+        "moment": "^2.26.0"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/node": "^13.7.4",
+        "typescript": "^3.9.5"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "live": "nodemon src/app.js"
+        "live": "nodemon"
     },
     "repository": {
         "type": "git",
