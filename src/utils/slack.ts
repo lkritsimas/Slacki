@@ -1,15 +1,15 @@
-const { WebClient, ErrorCode } = require("@slack/web-api");
-
+import { WebClient, ErrorCode } from "@slack/web-api";
 const token = process.env.APP_TOKEN;
 const client = new WebClient(token);
 
 /**
- * Send a simple message to a public channel, private channel, DM, or MPDM.
- * @param {string} channel
- * @param {string} text
- * @param {Array} attachments
- */
-const postMessage = async (channel, text, title, args = null) => {
+* Send a message to a public channel, private channel, DM, or MPDM.
+* @param {string} channel
+* @param {string} text
+* @param {string} title
+* @param {any[]} args
+*/
+export const postMessage = async (channel: string, text: string, title?: string, args?: any[]) => {
     if (!channel.length || !text.length) return false;
 
     title = title ? `${title}\n` : "";
@@ -24,18 +24,13 @@ const postMessage = async (channel, text, title, args = null) => {
 /**
  * Send a file to a public channel, private channel, DM, or MPDM.
  * @param {string} channels -
- * @param {string} data
+ * @param {any} data
  */
-const postFile = async (channels, data) => {
+export const postFile = async (channels: string, data: any) => {
     if (!channels.length || !Object.keys(data).length) return false;
 
     return client.files.upload({
         channels: channels,
         ...data
     });
-};
-
-module.exports = {
-    postMessage,
-    postFile
 };
